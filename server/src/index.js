@@ -1,41 +1,7 @@
-import { CreditCard, sequelize } from './db/models';
+import express from 'express';
+const app = express()
+const PORT = process.env.PORT || 5000;
 
-async function transaction (fromCardId, toCardId, value) {
-  try {
+app.get('/', (req, res) => res.send('Hello World!'))
 
-    const fromCard = await CreditCard.findByPk( fromCardId );
-    const toCard = await CreditCard.findByPk( toCardId );
-
-    console.group( 'Before' );
-    console.log( fromCard.get() );
-    console.log( toCard.get() );
-    console.groupEnd();
-
-    const t = await sequelize.transaction();
-
-    fromCard.balance -= value;
-    const updatedFromCard = await fromCard.save( {
-                                                   transaction: t,
-                                                 } );
-
-    toCard.balance = +toCard.balance + value;
-    const updatedToCard = await toCard.save(
-      {
-        transaction: t,
-      }
-    );
-
-    await t.commit();
-
-    console.group( 'After' );
-    console.log( updatedFromCard.get() );
-    console.log( updatedToCard.get() );
-    console.groupEnd();
-
-  } catch (e) {
-    console.error( e );
-  }
-}
-
-transaction( 1, 2, 100 );
-
+app.listen( PORT, () => console.log(`Example app listening on port ${PORT}!`))
