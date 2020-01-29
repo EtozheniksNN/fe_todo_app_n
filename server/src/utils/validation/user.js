@@ -1,8 +1,8 @@
 import Joi from '@hapi/joi';
-import { LOGIN_PATTERN, PASSWORD_PATTERN} from '../../constants';
+import { LOGIN_PATTERN, PASSWORD_PATTERN, NAME_PATTERN} from '../../constants';
 
 const nameSchema = Joi.string()
-                      .pattern(/^[A-Z][a-z]{0,63}$/)
+                      .pattern(NAME_PATTERN)
                       .required();
 const emailSchema = Joi.string().email();
 const loginSchema = Joi.string
@@ -11,22 +11,21 @@ const passwordSchema = Joi.string
                           .pattern(PASSWORD_PATTERN);
 
 
-const createUserSchema = Joi.object({
-	                              firstName: nameSchema.required(),
-	                              lastName: nameSchema.required(),
+export default Joi.object({
+	                              firstName: nameSchema.when('$isCreateMode',{
+	                              	then: nameSchema.required(),
+	                              }),
+	                              lastName: nameSchema.when('$isCreateMode',{
+		                              then: nameSchema.required()
+	                              }),
 	                              email: emailSchema,
-	                              login: loginSchema.required(),
-	                              password: passwordSchema.required(),
+	                              login: loginSchema.when('$isCreateMode',{
+		                              then: loginSchema.required()
+	                              }),
+	                              password: passwordSchema.when('$isCreateMode',{
+	                              	then: passwordSchema.required()
+	                              }),
 	
 	
-                              });
+                              }).min(1).max(5);
 
-export const updateUserSchema = Joi.object({
-	                                           firstName: nameSchema.required(),
-	                                           lastName: nameSchema.required(),
-	                                           email: emailSchema,
-	                                           login: loginSchema.required(),
-	                                           password: passwordSchema.required(),
-	
-	
-                                           });
