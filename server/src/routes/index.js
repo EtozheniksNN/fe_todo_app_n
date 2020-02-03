@@ -1,14 +1,18 @@
-import express from 'express';
-import userRouter from './user.router.js';
-import errorHandler from '../middlewares/errorHandler';
+import express                from 'express';
+import AppErrors              from '../utils/applicationErrors';
+import userRouter         from './user.router.js';
+import checkAuthorization from '../middlewares/authorization/checkAuthorization.js';
+import taskRouter         from './task.router.js';
 
 const router = express.Router();
 
+router.use( checkAuthorization );
 
-router.use('/user', userRouter);
+router.use( '/user', userRouter );
+router.use( '/task', taskRouter );
 
-router.use(errorHandler);
+router.use( '/*', function (req, res, next) {
+  next( new AppErrors.NotFoundError() );
+} );
 
 export default router;
-
-
